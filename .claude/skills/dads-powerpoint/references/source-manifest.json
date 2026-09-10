@@ -1,0 +1,62 @@
+{
+  "archive": "dads-markdown-20260819.zip",
+  "sha256": "ad2130176f4a2f063bfdeceae4eee3332e9f66655557b7e74c73372b00bf5002",
+  "includedUnmodifiedDocuments": [
+    {
+      "path": "dads/foundations/color/index.md",
+      "sha256": "b837582df57d18079675afd116d3f05bd18008f7e2095fe05a770250a532f9b7"
+    },
+    {
+      "path": "dads/foundations/typography/index.md",
+      "sha256": "97f9c1c99ecbafecdc996496e6761225bb5b0c8f963f9e3396e95e1109b7e19e"
+    },
+    {
+      "path": "dads/foundations/layout/index.md",
+      "sha256": "be38693a4c2aa7e5c205c7f33c655e3b433b84ba2ed9a228aa09e670fae86533"
+    },
+    {
+      "path": "dads/foundations/spacing/index.md",
+      "sha256": "1a345a4b927f21d810e94c73f2a3000530615777776fe8b8adcb137a4b709920"
+    },
+    {
+      "path": "dads/foundations/corner-shapes/index.md",
+      "sha256": "b800d3fd0c3db5e821c4d5ed61bdb793727945f415a8e177aeb9ab266bec448b"
+    },
+    {
+      "path": "dads/foundations/icon/index.md",
+      "sha256": "42ff8406cdc890be11d8dc3ac406c0a3f2c7da07ca24fc49fc7c008859a3e428"
+    },
+    {
+      "path": "dads/components/heading/index.md",
+      "sha256": "bf7f8ebed8387c535625211fb69e2da60917c54ae5d2cab7aeb59614531ade50"
+    },
+    {
+      "path": "dads/components/list/index.md",
+      "sha256": "9e01968ad500f4f4087575c97323d1ddc0c6d6730d854a81e6f9e9641cb5a421"
+    },
+    {
+      "path": "dads/components/table/index.md",
+      "sha256": "f8ab6c8bf715bdb578b8cca7cd44d4c6c5716489814f3c97f44404122e7f649d"
+    },
+    {
+      "path": "dads/components/divider/index.md",
+      "sha256": "73d86f068e74d1d18eaab28a62524faeed56ba7f9c15a89d190a11fe596ba6ee"
+    },
+    {
+      "path": "dads/components/image/index.md",
+      "sha256": "f5f59df6a5bf2d3f0949be69e407b0f76cc502de2e0c2f41874b852b1adfad20"
+    },
+    {
+      "path": "dads/guidance/accessibility/index.md",
+      "sha256": "3d43091aecfcac09890debf57e57a22543f3d2c828f3aa31f601fb3baa770f68"
+    },
+    {
+      "path": "dads/guidance/style-guides/index.md",
+      "sha256": "2095c3f1cd98899611da439b97030ed7a982b3c2c1fd635574f41e67f5bf2143"
+    },
+    {
+      "path": "dads/introduction/notices/index.md",
+      "sha256": "a0060e01c274e6cf8fd23d0c942ce4681353f99f07697ee982295e7a030dde30"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+interface:
+  display_name: デジタル庁デザインシステムのパワポ作成
+  short_description: 内容を整理・構造化してから、デジタル庁のデザインで分かりやすいパワポを作成
+  default_prompt: $dads-powerpoint を使って、まず以下の内容を整理・構造化し、その後にデジタル庁デザインシステムに基づくPowerPointを作成してください。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
