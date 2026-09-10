@@ -1,0 +1,199 @@
+{
+  "provenance": {
+    "guidanceArchive": "dads-markdown-20260819.zip",
+    "guidanceArchiveSha256": "ad2130176f4a2f063bfdeceae4eee3332e9f66655557b7e74c73372b00bf5002",
+    "guidanceDateLabel": "2026-08-19 (filename date, not a claim about every page)",
+    "tokenPackageVersion": "2.0.1",
+    "tokenSource": "https://github.com/digital-go-jp/design-tokens/blob/v2.0.1/figma/tokens.json",
+    "tokenRetrieved": "2026-09-07",
+    "tokenFileSha256": "f8a4edfba8449638d701a5e4f7c681249cb7b577fc6d782fb4d6f0c3befb0fb6",
+    "note": "Guidance comes from the user archive. Hex values are supplemented from the official token package v2.0.1; the package version is not the DADS website version. Slide roles and dimensions below are adaptations by this skill."
+  },
+  "officialPrimitives": {
+    "blue50": {
+      "value": "#E8F1FE",
+      "sourceToken": "Color.Color.Primitive.Blue.50"
+    },
+    "blue100": {
+      "value": "#D9E6FF",
+      "sourceToken": "Color.Color.Primitive.Blue.100"
+    },
+    "blue600": {
+      "value": "#3460FB",
+      "sourceToken": "Color.Color.Primitive.Blue.600"
+    },
+    "blue900": {
+      "value": "#0017C1",
+      "sourceToken": "Color.Color.Primitive.Blue.900"
+    },
+    "blue1000": {
+      "value": "#00118F",
+      "sourceToken": "Color.Color.Primitive.Blue.1000"
+    },
+    "green50": {
+      "value": "#E6F5EC",
+      "sourceToken": "Color.Color.Primitive.Green.50"
+    },
+    "green800": {
+      "value": "#197A4B",
+      "sourceToken": "Color.Color.Primitive.Green.800"
+    },
+    "green900": {
+      "value": "#115A36",
+      "sourceToken": "Color.Color.Primitive.Green.900"
+    },
+    "red50": {
+      "value": "#FDEEEE",
+      "sourceToken": "Color.Color.Primitive.Red.50"
+    },
+    "red900": {
+      "value": "#CE0000",
+      "sourceToken": "Color.Color.Primitive.Red.900"
+    },
+    "yellow50": {
+      "value": "#FBF5E0",
+      "sourceToken": "Color.Color.Primitive.Yellow.50"
+    },
+    "yellow900": {
+      "value": "#927200",
+      "sourceToken": "Color.Color.Primitive.Yellow.900"
+    },
+    "orange900": {
+      "value": "#AC3E00",
+      "sourceToken": "Color.Color.Primitive.Orange.900"
+    },
+    "purple800": {
+      "value": "#5C10BE",
+      "sourceToken": "Color.Color.Primitive.Purple.800"
+    },
+    "white": {
+      "value": "#FFFFFF",
+      "sourceToken": "Color.Color.Neutral.White"
+    },
+    "black": {
+      "value": "#000000",
+      "sourceToken": "Color.Color.Neutral.Black"
+    },
+    "gray50": {
+      "value": "#F2F2F2",
+      "sourceToken": "Color.Color.Neutral.SolidGray.50"
+    },
+    "gray100": {
+      "value": "#E6E6E6",
+      "sourceToken": "Color.Color.Neutral.SolidGray.100"
+    },
+    "gray200": {
+      "value": "#CCCCCC",
+      "sourceToken": "Color.Color.Neutral.SolidGray.200"
+    },
+    "gray420": {
+      "value": "#949494",
+      "sourceToken": "Color.Color.Neutral.SolidGray.420"
+    },
+    "gray536": {
+      "value": "#767676",
+      "sourceToken": "Color.Color.Neutral.SolidGray.536"
+    },
+    "gray600": {
+      "value": "#666666",
+      "sourceToken": "Color.Color.Neutral.SolidGray.600"
+    },
+    "gray700": {
+      "value": "#4D4D4D",
+      "sourceToken": "Color.Color.Neutral.SolidGray.700"
+    },
+    "gray900": {
+      "value": "#1A1A1A",
+      "sourceToken": "Color.Color.Neutral.SolidGray.900"
+    },
+    "yellow1000": {
+      "value": "#806300",
+      "sourceToken": "Color.Color.Primitive.Yellow.1000"
+    }
+  },
+  "slideAdaptation": {
+    "canvasPx": {
+      "width": 1280,
+      "height": 720
+    },
+    "canvasInches": {
+      "width": 13.3333333333,
+      "height": 7.5
+    },
+    "roles": {
+      "background": "white",
+      "surface": "gray50",
+      "text": "gray900",
+      "muted": "gray600",
+      "primary": "blue900",
+      "primarySurface": "blue50",
+      "rule": "gray600",
+      "decorativeRule": "gray200",
+      "success": "green800",
+      "successSurface": "green50",
+      "error": "red900",
+      "errorSurface": "red50",
+      "warning": "yellow1000",
+      "warningSurface": "yellow50",
+      "series2": "green900",
+      "series3": "purple800",
+      "series4": "orange900"
+    },
+    "font": {
+      "preferred": "Noto Sans JP",
+      "fallbacks": [
+        "Noto Sans CJK JP",
+        "Yu Gothic",
+        "Meiryo",
+        "BIZ UDPGothic"
+      ],
+      "mono": "Noto Sans Mono",
+      "weights": [
+        400,
+        700
+      ]
+    },
+    "fontPt": {
+      "cover": 48,
+      "title": 36,
+      "subheading": 24,
+      "body": 22,
+      "table": 20,
+      "caption": 16,
+      "footer": 14,
+      "metric": 56
+    },
+    "lineHeight": {
+      "cover": 1.4,
+      "title": 1.4,
+      "body": 1.5,
+      "compactLabel": 1.2
+    },
+    "spacingPx": [
+      8,
+      16,
+      24,
+      32,
+      48,
+      64,
+      80
+    ],
+    "framePx": {
+      "left": 64,
+      "right": 64,
+      "top": 48,
+      "contentTop": 184,
+      "contentBottom": 624,
+      "footerTop": 664,
+      "bottom": 32
+    },
+    "columnGapPx": 64,
+    "cornerRadiusPx": 0,
+    "shadow": "none",
+    "contrast": {
+      "textMinimum": 4.5,
+      "meaningfulGraphicsMinimum": 3.0,
+      "nearThresholdBuffer": 0.2
+    }
+  }
+}
