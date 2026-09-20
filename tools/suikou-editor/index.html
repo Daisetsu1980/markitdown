@@ -1,0 +1,949 @@
+<title>推敲卓</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#E8EAE6; --surface:#FBFBF9; --surface-2:#F1F2EE; --rule:#D0D3CC; --rule-soft:#E0E2DB;
+  --ink:#161A20; --ink-2:#3C434F; --muted:#6A7180;
+  --accent:#24407C; --accent-ink:#FFFFFF; --accent-soft:#DFE5F2;
+  --c-ronsho:#B3372C; --c-mibun:#6E44A0; --c-kaisou:#27599E; --c-setsuzoku:#146F63;
+  --c-shuji:#A55A17; --c-go:#4A7118; --c-bunmatsu:#A63466;
+  --tint:23%;
+  --shadow:0 1px 2px rgba(20,25,35,.06), 0 8px 24px -14px rgba(20,25,35,.28);
+  --ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#101318; --surface:#181C22; --surface-2:#1F242B; --rule:#2C323B; --rule-soft:#242A32;
+  --ink:#E6E9EE; --ink-2:#C2C8D2; --muted:#949CAB;
+  --accent:#88A6E8; --accent-ink:#11151C; --accent-soft:#1E2740;
+  --c-ronsho:#F08B7E; --c-mibun:#C4A3EC; --c-kaisou:#8FB5F2; --c-setsuzoku:#5FC7B5;
+  --c-shuji:#EDA469; --c-go:#A9CE6C; --c-bunmatsu:#F094BD;
+  --tint:26%;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -16px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --ground:#101318; --surface:#181C22; --surface-2:#1F242B; --rule:#2C323B; --rule-soft:#242A32;
+  --ink:#E6E9EE; --ink-2:#C2C8D2; --muted:#949CAB;
+  --accent:#88A6E8; --accent-ink:#11151C; --accent-soft:#1E2740;
+  --c-ronsho:#F08B7E; --c-mibun:#C4A3EC; --c-kaisou:#8FB5F2; --c-setsuzoku:#5FC7B5;
+  --c-shuji:#EDA469; --c-go:#A9CE6C; --c-bunmatsu:#F094BD;
+  --tint:26%;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -16px rgba(0,0,0,.7);
+}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--ui);font-size:14px;line-height:1.7;
+  -webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+/* ---------- shell ---------- */
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;min-height:0}
+.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));
+  background:var(--surface);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand h1{margin:0;font-family:var(--mincho);font-size:19px;font-weight:600;letter-spacing:.1em}
+.brand .booktitle{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+.topbar .spacer{flex:1 1 auto}
+.stat{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stat b{color:var(--ink);font-weight:500}
+
+.btn{border:1px solid var(--rule);background:var(--surface-2);padding:6px 13px;border-radius:5px;font-size:13px;
+  line-height:1.5;white-space:nowrap;transition:background .12s,border-color .12s}
+.btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default;background:var(--surface-2);border-color:var(--rule)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+.btn.sm{padding:3px 9px;font-size:12px}
+
+/* strength dial */
+.strength{display:flex;align-items:center;gap:9px}
+.strength label{font-size:12px;color:var(--muted);white-space:nowrap}
+.strength input[type=range]{width:116px;accent-color:var(--accent)}
+.strength .val{font-size:12px;min-width:5.4em;color:var(--ink);font-weight:500}
+
+.main{display:grid;grid-template-columns:238px minmax(0,1fr) 340px;min-height:0}
+.pane{min-height:0;overflow:auto;overscroll-behavior:contain}
+.toc{background:var(--surface);border-right:1px solid var(--rule);padding-bottom:40px}
+.work{background:var(--ground);display:flex;flex-direction:column;min-height:0}
+.side{background:var(--surface);border-left:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+
+/* ---------- toc ---------- */
+.toc-head{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--rule-soft);
+  padding:9px 14px;font-size:11px;letter-spacing:.14em;color:var(--muted);z-index:2}
+.part{padding:14px 14px 5px;font-family:var(--mincho);font-size:13px;font-weight:600;color:var(--ink-2);
+  border-top:1px solid var(--rule-soft);margin-top:6px;cursor:pointer}
+.part:first-of-type{border-top:none;margin-top:0}
+.sec{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;padding:5px 14px 5px 20px;
+  font-size:12.5px;color:var(--ink-2);border-left:2px solid transparent;line-height:1.5}
+.sec:hover{background:var(--surface-2)}
+.sec.on{background:var(--accent-soft);border-left-color:var(--accent);color:var(--ink);font-weight:500}
+.sec .t{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.sec .n{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:1px}
+.sec .edited{color:var(--accent);font-size:11px}
+.dots{display:flex;gap:2px;padding-top:5px;flex:0 0 auto}
+.dot{width:5px;height:5px;border-radius:50%}
+
+/* ---------- editor ---------- */
+.workhead{padding:16px max(20px,env(safe-area-inset-left)) 10px;display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.workhead .lv{font-size:11px;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:3px}
+.headline{flex:1 1 320px;min-width:0}
+.headline input{width:100%;background:none;border:none;border-bottom:1px dashed var(--rule);padding:2px 0 5px;
+  font-family:var(--mincho);font-size:21px;font-weight:600;letter-spacing:.02em}
+.headline input:focus{outline:none;border-bottom-color:var(--accent)}
+.editor-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:0 max(20px,env(safe-area-inset-left)) 60px}
+.paper{background:var(--surface);border:1px solid var(--rule);border-radius:2px;box-shadow:var(--shadow);
+  position:relative;max-width:46em;margin:0 auto}
+.stack{position:relative}
+.ta,.hl{font-family:var(--mincho);font-size:16.5px;line-height:2.05;letter-spacing:.015em;
+  padding:30px 34px;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;margin:0;border:0;
+  text-align:left;font-kerning:none;font-variant-ligatures:none}
+.hl{position:absolute;inset:0;color:transparent;pointer-events:none;z-index:0;overflow:hidden}
+.ta{position:relative;z-index:1;display:block;width:100%;background:transparent;color:var(--ink);resize:none;
+  overflow:hidden;min-height:340px;caret-color:var(--accent)}
+.ta:focus{outline:none}
+.hl mark{background:none;color:transparent;border-bottom:2px solid var(--mk);
+  background-color:color-mix(in srgb,var(--mk) var(--tint),transparent);border-radius:2px 2px 0 0;
+  box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hl mark.stale{border-bottom-style:dotted;background-color:transparent}
+.hl mark.cur{background-color:color-mix(in srgb,var(--mk) 42%,transparent);border-bottom-width:3px}
+.emptynote{max-width:46em;margin:0 auto;padding:26px 30px;border:1px dashed var(--rule);border-radius:3px;
+  color:var(--muted);background:var(--surface-2);font-size:13px}
+.workfoot{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  padding:8px max(20px,env(safe-area-inset-left));border-top:1px solid var(--rule-soft);background:var(--surface);
+  font-size:12px;color:var(--muted)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.legend button{display:flex;gap:5px;align-items:center;font-size:11.5px;color:var(--muted);padding:2px 5px;border-radius:4px}
+.legend button:hover{background:var(--surface-2);color:var(--ink)}
+.legend button.off{opacity:.35}
+.legend .sw{width:9px;height:9px;border-radius:2px;background:var(--mk)}
+
+/* ---------- side ---------- */
+.tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--surface);flex:0 0 auto}
+.tabs button{flex:1;padding:10px 4px;font-size:12.5px;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:500}
+.tabs .badge{display:inline-block;min-width:17px;padding:0 4px;margin-left:5px;border-radius:9px;background:var(--surface-2);
+  font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tabs button.on .badge{background:var(--accent);color:var(--accent-ink)}
+.sidebody{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 14px 60px}
+.sidefoot{flex:0 0 auto;border-top:1px solid var(--rule-soft);padding:8px 14px;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;flex-wrap:wrap;background:var(--surface)}
+
+.card{border:1px solid var(--rule);border-left:3px solid var(--mk,var(--rule));border-radius:4px;background:var(--surface-2);
+  padding:10px 11px;margin-bottom:9px}
+.card.on{background:var(--accent-soft);border-color:var(--accent)}
+.card .cat{font-size:11px;color:var(--mk);font-weight:700;letter-spacing:.06em}
+.card .sev{float:right;font-size:10.5px;color:var(--muted)}
+.card .quote{font-family:var(--mincho);font-size:13.5px;line-height:1.75;margin:5px 0 6px;color:var(--ink);
+  border-left:2px solid var(--rule);padding-left:8px}
+.card .why{font-size:12.5px;color:var(--ink-2);margin:0 0 8px}
+.card .lost{font-size:11px;color:var(--muted);margin-bottom:6px}
+.fix{display:block;width:100%;text-align:left;border:1px solid var(--rule);border-radius:4px;background:var(--surface);
+  padding:8px 9px;margin-top:6px;font-family:var(--mincho);font-size:13.5px;line-height:1.8}
+.fix:hover{border-color:var(--accent);background:var(--accent-soft)}
+.fix .lb{display:block;font-family:var(--ui);font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
+.fix .nt{display:block;font-family:var(--ui);font-size:11.5px;color:var(--muted);margin-top:5px}
+.hint{color:var(--muted);font-size:12.5px;line-height:1.85}
+.hint code{background:var(--surface-2);padding:1px 5px;border-radius:3px;font-size:11.5px}
+.selbox{font-family:var(--mincho);font-size:13.5px;background:var(--surface-2);border:1px solid var(--rule-soft);
+  border-radius:4px;padding:8px 9px;margin-bottom:10px;max-height:9em;overflow:auto;line-height:1.8}
+.orig{font-family:var(--mincho);font-size:14px;line-height:2;white-space:pre-wrap;color:var(--ink-2)}
+.thinking{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12.5px;padding:6px 0}
+.spin{width:11px;height:11px;border:2px solid var(--rule);border-top-color:var(--accent);border-radius:50%;
+  animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+.err{border:1px solid var(--c-ronsho);background:color-mix(in srgb,var(--c-ronsho) 12%,transparent);
+  border-radius:4px;padding:9px 10px;font-size:12.5px;color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);color:var(--ground);padding:8px 16px;border-radius:20px;font-size:12.5px;z-index:40;
+  box-shadow:var(--shadow);max-width:90vw}
+dialog{border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--ink);padding:0;
+  max-width:min(620px,92vw);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(10,12,16,.45)}
+.dlg{padding:18px 20px}
+.dlg h2{margin:0 0 8px;font-family:var(--mincho);font-size:17px;font-weight:600}
+.dlg p{margin:0 0 10px;font-size:12.5px;color:var(--muted);line-height:1.8}
+.dlg textarea{width:100%;height:230px;background:var(--surface-2);border:1px solid var(--rule);border-radius:4px;
+  padding:10px;font-family:var(--mincho);font-size:13px;line-height:1.8;resize:vertical}
+.dlg .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.mobile-tabs{display:none}
+@media (max-width:1040px){.main{grid-template-columns:200px minmax(0,1fr) 300px}}
+@media (max-width:860px){
+  .main{grid-template-columns:1fr;grid-template-rows:1fr}
+  .toc,.work,.side{display:none}
+  .toc.show{display:block}
+  .work.show{display:flex}
+  .side.show{display:flex}
+  .mobile-tabs{display:flex;gap:4px}
+  .brand .booktitle{display:none}
+  .ta,.hl{padding:22px 20px;font-size:16px}
+}
+</style>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1>推敲卓</h1>
+      <span class="booktitle" id="booktitle">原稿を読み込んでいます…</span>
+    </div>
+    <div class="mobile-tabs">
+      <button class="btn sm" data-view="toc">目次</button>
+      <button class="btn sm" data-view="work">本文</button>
+      <button class="btn sm" data-view="side">検討</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="strength">
+      <label for="strength">効かせ具合</label>
+      <input type="range" id="strength" min="1" max="4" step="1" value="3">
+      <span class="val" id="strengthval">標準</span>
+    </div>
+    <div class="stat">
+      <span>指摘 <b id="statFind">0</b></span>
+      <span>編集 <b id="statEdit">0</b>/<b id="statAll">0</b></span>
+      <span id="saveState">—</span>
+    </div>
+    <button class="btn primary" id="btnCheck">この節をチェック</button>
+    <button class="btn" id="btnExport">書き出す</button>
+    <button class="btn ghost" id="btnImport" title="本文を貼り付けて構造化する">取り込む</button>
+  </header>
+
+  <div class="main">
+    <nav class="pane toc show" id="toc" aria-label="目次">
+      <div class="toc-head">目次</div>
+      <div id="tocList"></div>
+    </nav>
+
+    <section class="work show" id="work">
+      <div class="workhead">
+        <div class="headline">
+          <span class="lv" id="secLevel">見出し</span>
+          <input id="headingInput" placeholder="見出し" aria-label="見出し">
+        </div>
+        <button class="btn sm" id="btnHeading">見出しを検討</button>
+        <button class="btn sm" id="btnUndo" disabled>元に戻す</button>
+      </div>
+      <div class="editor-scroll" id="editorScroll">
+        <div class="paper" id="paper">
+          <div class="stack">
+            <div class="hl" id="hl" aria-hidden="true"></div>
+            <textarea class="ta" id="ta" spellcheck="false" aria-label="本文"></textarea>
+          </div>
+        </div>
+        <div class="emptynote" id="emptyNote" hidden></div>
+      </div>
+      <div class="workfoot">
+        <div class="legend" id="legend"></div>
+        <div class="spacer" style="flex:1"></div>
+        <span id="counts">—</span>
+      </div>
+    </section>
+
+    <aside class="side show" id="side" aria-label="検討">
+      <div class="tabs" role="tablist">
+        <button data-tab="find" class="on" role="tab">指摘<span class="badge" id="bdgFind">0</span></button>
+        <button data-tab="sugg" role="tab">修正案</button>
+        <button data-tab="orig" role="tab">原文</button>
+      </div>
+      <div class="sidebody" id="sidebody"></div>
+      <div class="sidefoot">
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)">
+          <input type="checkbox" id="autoSugg" checked style="accent-color:var(--accent)">
+          選択したら自動で修正案
+        </label>
+        <div style="flex:1"></div>
+        <button class="btn sm" id="btnStop" hidden>中止</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<dialog id="importDlg"><form method="dialog" class="dlg">
+  <h2>本文を取り込む</h2>
+  <p>Google ドキュメントの本文を貼り付けると、章と節に自動で分けて取り込みます。見出しは <code>**…**</code> か、本文より短い独立行として拾います。いま入っている原稿は置き換わります。</p>
+  <textarea id="importText" placeholder="ここに貼り付け"></textarea>
+  <div class="row">
+    <button class="btn" value="cancel">やめる</button>
+    <button class="btn primary" id="importGo" value="go">構造化して取り込む</button>
+  </div>
+</form></dialog>
+
+<script>
+"use strict";
+/* ============================ 推敲の基準 ============================ */
+const CATS = {
+  ronsho:   {label:"論証", v:"--c-ronsho"},
+  mibun:    {label:"身分", v:"--c-mibun"},
+  kaisou:   {label:"階層", v:"--c-kaisou"},
+  setsuzoku:{label:"接続", v:"--c-setsuzoku"},
+  shuji:    {label:"修辞", v:"--c-shuji"},
+  go:       {label:"語",   v:"--c-go"},
+  bunmatsu: {label:"文末", v:"--c-bunmatsu"},
+};
+const CAT_KEYS = Object.keys(CATS);
+
+const CRITERIA = `あなたは日本語の新書原稿を推敲する編集者です。判断の基準は次のとおりです。
+
+【種別と、何を問題とみなすか】
+ronsho（論証）：結論の理解に不可欠な前提が欠けている。前提と結論のあいだに実際の飛躍がある。一つの例から一般的な結論を導きすぎている。同じ語が途中で別の意味へ移っている。似た概念を同一物として扱っている。事実から価値判断へ、必要な規範的前提なしに移っている。──ただし、読者が文脈から容易に補える推論の圧縮は問題ではない。中間段階が書かれていないことではなく、欠けているために論証が成立しないことだけを拾う。
+mibun（身分）：確立した事実・他者の主張・研究報告・概念分析・推論の帰結・筆者の解釈・仮説的な見立て・規範的判断・定義上の設定が、同じ資格の断定として並び、どこから筆者の判断に移ったのか分からない。事実に不要なヘッジ（〜と考えられる、〜かもしれない）が付いている。議論を積み終えた場所で言い切れていない。
+kaisou（階層）：主従関係にある命題（理由・条件・限定・譲歩・対比・具体化）が、すべて独立した短文として横並びになり、思考の階層が失われている。短文の連打。逆に、独立した論点までを接続助詞で一文に押し込んでいる。
+setsuzoku（接続）：接続詞が実際の論理関係と合っていない。段落の一文目に前段落からの橋がない。段落が直前の話題の続きではなく事実の宣言として起きている。「〜することで〜できる」を、実際の手段と結果ではない関係に使っている。
+shuji（修辞）：論証にまだ存在しない重要性・対立・転換・意外性を、「重要なのは」「まさに」「〜にほかならない」「実は」「単にAなのではない」やクレフト構文で先取りしている。「ここが重要です」「では考えてみましょう」のような、議論そのものに仕事をしない進行実況。文章が自分自身について語る言葉。
+go（語）：「無数の工夫」「さまざまな要因」のような抽象語が、中身を伴わずに主語として走っている。「生まれる」「広がる」「つながる」「見えてくる」「もたらす」のような汎用述語が、異なる関係を曖昧に包んでいる。説明句のままで一語にできる。平易な語に開いたために意味がぼやけている（語彙は平易化ではなく精密化する）。人名の初出にフルネームや肩書きがない。
+bunmatsu（文末）：「〜ていく」「〜てしまう」が、時間的な進行・蓄積・不可逆性・遺憾を表す必要がないのに付いている。同じ語尾が三つ以上続く。「〜のです」が段落の途中にある。敬体と常体の混在が、描写の効果ではなく乱れになっている。
+
+【拾ってはいけないもの】
+・実際に対比や限定の仕事をしている「しかし」「こそ」「〜にほかならない」。
+・読者への問いかけ（「〜でしょうか。」）。これは残すものであって、削る対象ではない。
+・次の議論を開く仮説的な見立て（「どうやら私たちは〜しているようです」）。直前の前提から厳密に演繹できないという理由だけで無難な要約に変えない。
+・描写の山場に置かれた常体、比喩、語りかけ、リズムのある一文。著者の声は消さない。
+・「もっと明確にできる」「もっと整う」だけを理由にした書き換え。問題を一文で言えないなら拾わない。
+
+【修正案を書くときの制約】
+・事実・引用・固有名詞・数値は変えない。原文にない主張や、確かめていない事実を書き加えない。引用文（「　」『　』で囲まれた他者の言葉）の中は直さない。
+・修正の規模は問題の規模に合わせる。一語の問題を直すために一文を書き換えない。
+・削ることを目的にしない。情報が落ちる直しは失敗。足してよいのは、原文がすでに含意していることの言語化（前提、具体例、術語、問いの回収、一般命題）だけ。
+・文をつなぐときは「〜が、」「〜ており、」「〜のに」で関係を示して一文に畳む。`;
+
+const STRENGTH = {
+  1:{name:"点検",   max:6,  say:"論証の破綻と明らかな誤りだけを拾ってください。文体の好みには触れない。"},
+  2:{name:"控えめ", max:10, say:"論証の破綻に加えて、命題の身分の混同と、接続の誤りを拾ってください。語や文末は、明確に問題のあるものだけ。"},
+  3:{name:"標準",   max:18, say:"四つの層（論証・階層・接続と文末・語）をすべて通してください。直せる場所を見つけて直さずに通すほうが、直しすぎるより悪い。ただし問題を一文で言える箇所だけを拾う。"},
+  4:{name:"組み直し",max:26,say:"全文をばらして組み直す前提で見てください。削る操作だけでなく、足す操作（読者の直感を先に置く、抽象語に中身を入れる、概念に名前を与える、立てた問いを閉じる、事例のあとに一般命題を置く）も積極的に指摘してください。段落の切れ目や文の切れ目を動かす提案をしてかまいません。"},
+};
+
+/* ============================ 状態 ============================ */
+const state = {
+  title:"", sections:[], curId:null, strength:3,
+  findings:{},            // secId -> [{cat,quote,why,sev,fix[],start,end,id}]
+  suggestions:null,       // {sel, items[], range}
+  headings:null,          // {secId, items[]}
+  tab:"find", curFinding:null, undo:[], muted:{}, busy:null, err:null,
+};
+let db=null, sampleFn=null, dl=null, saveTimer=null, suggTimer=null, lastSelKey="", abortCtl=null;
+const LS = "suikou.v1.";
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const now = () => new Date().toISOString();
+const cur = () => state.sections.find(s => s.id === state.curId) || null;
+
+function toast(msg, ms){
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms || 2600);
+}
+
+/* ============================ 構造化 ============================ */
+const PART_RE = /^(第[0-9０-９一二三四五六七八九十]+章|プロローグ|エピローグ|はじめに|あとがき|序章|終章)/;
+function cleanHead(s){ return s.trim().replace(/^\*+/,"").replace(/\*+$/,"").trim(); }
+function headingOf(line){
+  const s = line.trim();
+  if (!s || s.startsWith("|")) return null;
+  if (s.startsWith("**") && s.endsWith("**") && s.length > 4){
+    const h = cleanHead(s);
+    if (!h || h.length > 80 || !/[ぁ-んァ-ヶ一-龥Ａ-Ｚａ-ｚA-Za-z0-9]/.test(h)) return null;
+    return h;
+  }
+  if (/^#{1,4}\s+/.test(s)) return s.replace(/^#{1,4}\s+/,"").trim().slice(0,80) || null;
+  return null;
+}
+function structure(raw){
+  const lines = raw.replace(/\r\n?/g,"\n").split("\n");
+  let title = cleanHead(lines[0] || "") , start = 0;
+  if (headingOf(lines[0] || "") && !PART_RE.test(cleanHead(lines[0]))) start = 1; else title = "";
+  const out = []; let cur1 = null, part = "";
+  for (let i = start; i < lines.length; i++){
+    const h = headingOf(lines[i]);
+    if (h){
+      const lvl = PART_RE.test(h) ? 1 : 2;
+      if (lvl === 1) part = h;
+      cur1 = {heading:h, level:lvl, part:lvl===1?h:part, lines:[]};
+      out.push(cur1); continue;
+    }
+    if (!cur1){ cur1 = {heading:"（無題）", level:2, part:"", lines:[]}; out.push(cur1); }
+    cur1.lines.push(lines[i]);
+  }
+  const secs = [];
+  out.forEach((s, i) => {
+    const body = s.lines.join("\n").replace(/\n[ \t]+\n/g,"\n\n").replace(/\n{3,}/g,"\n\n").replace(/^\n+|\n+$/g,"");
+    if (!body && s.level === 2) return;
+    secs.push({id:"s"+String(secs.length+1).padStart(3,"0"), idx:secs.length, heading:s.heading,
+      level:s.level, part:s.part, body, original:body, edited:false});
+  });
+  return {title: title || "無題の原稿", sections: secs};
+}
+
+/* ============================ 読み込み・保存 ============================ */
+async function boot(){
+  renderLegend(); bindUI();
+  const local = loadLocal();
+  if (local){ apply(local); }
+  try { db = window.claude && claude.use ? await claude.use("db") : null; } catch(e){ db = null; }
+  try { sampleFn = window.claude && claude.use ? await claude.use("sample") : null; } catch(e){ sampleFn = null; }
+  try { dl = window.claude && claude.use ? await claude.use("downloads") : null; } catch(e){ dl = null; }
+  if (!sampleFn){ $("btnCheck").disabled = true; $("btnHeading").disabled = true; }
+  if (db){
+    try {
+      const snap = await db.collection("sections").orderBy("idx").get();
+      if (!snap.empty){
+        const secs = snap.docs.map(d => Object.assign({id:d.id}, d.data()));
+        const meta = await db.doc("meta/book").get();
+        apply({title:(meta.exists && meta.data().title) || "原稿", sections:secs});
+        state.findings = {};
+        secs.forEach(s => { if (Array.isArray(s.findings) && s.findings.length) state.findings[s.id] = s.findings; });
+        renderAll(); setSave("読み込み済み");
+      }
+    } catch(e){ setSave("読み込めず"); }
+  }
+  if (!state.sections.length){ showEmpty(); }
+  renderAll();
+}
+function apply(data){
+  state.title = data.title || "原稿";
+  state.sections = data.sections.map((s,i) => ({
+    id:s.id || ("s"+String(i+1).padStart(3,"0")), idx:(s.idx ?? i), heading:s.heading || "（無題）",
+    level:s.level || 2, part:s.part || "", body:s.body || "", original:s.original ?? (s.body || ""),
+    origHeading:s.origHeading ?? (s.heading || "（無題）"), edited:!!s.edited,
+  })).sort((a,b) => a.idx - b.idx);
+  if (!state.curId || !state.sections.some(s => s.id === state.curId))
+    state.curId = (state.sections.find(s => s.body) || state.sections[0] || {}).id || null;
+}
+function showEmpty(){
+  $("emptyNote").hidden = false;
+  $("emptyNote").innerHTML = "原稿がまだ入っていません。右上の<b>取り込む</b>から本文を貼り付けると、章と節に分けて取り込みます。";
+  $("paper").hidden = true;
+}
+function loadLocal(){
+  try {
+    const raw = localStorage.getItem(LS+"book"); if (!raw) return null;
+    const d = JSON.parse(raw);
+    state.findings = d.findings || {};
+    return d;
+  } catch(e){ return null; }
+}
+function saveLocal(){
+  try {
+    localStorage.setItem(LS+"book", JSON.stringify({title:state.title, sections:state.sections, findings:state.findings}));
+  } catch(e){}
+}
+function setSave(t){ $("saveState").textContent = t; }
+const pending = new Map();
+function queueSave(sec){
+  sec.edited = sec.body !== sec.original || sec.heading !== sec.origHeading;
+  saveLocal(); setSave("保存中…");
+  pending.set(sec.id, sec);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSaves, 1100);
+}
+async function flushSaves(){
+  const list = Array.from(pending.values()); pending.clear();
+  if (!db){ setSave("この端末に保存"); return; }
+  for (const sec of list){
+    try {
+      await db.doc("sections/"+sec.id).set({
+        idx:sec.idx, heading:sec.heading, level:sec.level, part:sec.part,
+        body:sec.body, original:sec.original, origHeading:sec.origHeading, edited:!!sec.edited,
+        findings:(state.findings[sec.id] || []).map(f => ({cat:f.cat, quote:f.quote, why:f.why, sev:f.sev, fix:f.fix})),
+        updatedAt:now(),
+      });
+      setSave("保存しました");
+    } catch(e){ setSave("保存できず（この端末には保存済み）"); }
+  }
+}
+
+/* ============================ 描画 ============================ */
+function renderAll(){ renderToc(); renderEditor(); renderSide(); renderStats(); }
+
+function renderToc(){
+  const list = $("tocList"); list.innerHTML = "";
+  $("booktitle").textContent = state.title || "";
+  let lastPart = null;
+  state.sections.forEach(s => {
+    if (s.level === 1){
+      const d = document.createElement("div");
+      d.className = "part"; d.textContent = s.heading; d.tabIndex = 0; d.setAttribute("role","button");
+      d.onclick = () => select(s.id);
+      d.onkeydown = e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); select(s.id); } };
+      list.appendChild(d); lastPart = s.part; return;
+    }
+    const b = document.createElement("button");
+    b.className = "sec" + (s.id === state.curId ? " on" : "");
+    const f = state.findings[s.id] || [];
+    const dots = document.createElement("span"); dots.className = "dots";
+    const seen = new Set();
+    f.forEach(x => { if (!seen.has(x.cat) && CATS[x.cat]){ seen.add(x.cat);
+      const dd = document.createElement("i"); dd.className = "dot";
+      dd.style.background = "var("+CATS[x.cat].v+")"; dots.appendChild(dd); } });
+    const t = document.createElement("span"); t.className = "t"; t.textContent = s.heading;
+    b.appendChild(t);
+    if (s.edited){ const e = document.createElement("span"); e.className = "edited"; e.textContent = "◆"; e.title = "編集済み"; b.appendChild(e); }
+    if (f.length){ const n = document.createElement("span"); n.className = "n"; n.textContent = f.length; b.appendChild(n); }
+    b.appendChild(dots);
+    b.onclick = () => select(s.id);
+    list.appendChild(b);
+  });
+}
+
+function renderEditor(){
+  const s = cur();
+  $("paper").hidden = !s;
+  if (!s){ if (!state.sections.length) showEmpty(); return; }
+  $("emptyNote").hidden = true;
+  $("secLevel").textContent = s.level === 1 ? "章" : (s.part ? s.part : "節");
+  if ($("headingInput").value !== s.heading) $("headingInput").value = s.heading;
+  const ta = $("ta");
+  if (ta.value !== s.body){ ta.value = s.body; }
+  autosize(); paint(); renderCounts();
+}
+function autosize(){
+  const ta = $("ta");
+  ta.style.height = "auto";
+  ta.style.height = Math.max(340, ta.scrollHeight) + "px";
+}
+function resolve(f, body, used){
+  if (!f.quote) return null;
+  const q = f.quote.replace(/\s+$/,"");
+  let from = 0, i;
+  while ((i = body.indexOf(q, from)) !== -1){
+    const end = i + q.length;
+    if (!used.some(u => i < u[1] && end > u[0])) return [i, end];
+    from = i + 1;
+  }
+  return null;
+}
+function activeFindings(){
+  const s = cur(); if (!s) return [];
+  const list = (state.findings[s.id] || []).filter(f => !state.muted[f.cat]);
+  const used = [];
+  list.forEach(f => {
+    const r = resolve(f, s.body, used);
+    if (r){ f.start = r[0]; f.end = r[1]; used.push(r); } else { f.start = -1; f.end = -1; }
+  });
+  return list;
+}
+function paint(){
+  const s = cur(); const hl = $("hl"); if (!s){ hl.innerHTML = ""; return; }
+  const fs = activeFindings().filter(f => f.start >= 0).sort((a,b) => a.start - b.start);
+  let html = "", at = 0;
+  fs.forEach(f => {
+    if (f.start < at) return;
+    html += esc(s.body.slice(at, f.start));
+    const isCur = state.curFinding === f.id;
+    html += '<mark class="'+(isCur ? "cur" : "")+'" style="--mk:var('+CATS[f.cat].v+')">'+esc(s.body.slice(f.start, f.end))+"</mark>";
+    at = f.end;
+  });
+  html += esc(s.body.slice(at)) + "\n";
+  hl.innerHTML = html;
+}
+function renderCounts(){
+  const s = cur(); if (!s) return;
+  const body = s.body;
+  const sents = body.split(/(?<=。)/).map(x => x.trim()).filter(x => x.length > 12);
+  const avg = sents.length ? Math.round(sents.reduce((a,b) => a + b.length, 0) / sents.length * 10) / 10 : 0;
+  const short = sents.length ? Math.round(100 * sents.filter(x => x.length < 30).length / sents.length) : 0;
+  $("counts").textContent = body.length + "字／" + sents.length + "文／平均" + avg + "字／30字未満 " + short + "%";
+}
+function renderStats(){
+  let n = 0; Object.values(state.findings).forEach(a => n += a.length);
+  $("statFind").textContent = n;
+  $("statEdit").textContent = state.sections.filter(s => s.edited).length;
+  $("statAll").textContent = state.sections.length;
+  $("bdgFind").textContent = (state.findings[state.curId] || []).length;
+}
+function renderLegend(){
+  const l = $("legend"); l.innerHTML = "";
+  CAT_KEYS.forEach(k => {
+    const b = document.createElement("button");
+    b.style.setProperty("--mk", "var("+CATS[k].v+")");
+    b.className = state.muted[k] ? "off" : "";
+    b.innerHTML = '<i class="sw"></i>' + CATS[k].label;
+    b.title = CATS[k].label + "の指摘を表示／非表示";
+    b.onclick = () => { state.muted[k] = !state.muted[k]; renderLegend(); paint(); renderSide(); };
+    l.appendChild(b);
+  });
+}
+
+/* ---------- side panel ---------- */
+function renderSide(){
+  const box = $("sidebody"); box.innerHTML = "";
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === state.tab));
+  if (state.err){
+    const e = document.createElement("div"); e.className = "err"; e.textContent = state.err; box.appendChild(e);
+  }
+  if (state.busy){
+    const d = document.createElement("div"); d.className = "thinking";
+    d.innerHTML = '<span class="spin"></span><span>' + esc(state.busy) + "</span>";
+    box.appendChild(d);
+  }
+  if (state.tab === "find") return renderFindings(box);
+  if (state.tab === "sugg") return renderSuggestions(box);
+  return renderOriginal(box);
+}
+function renderFindings(box){
+  const s = cur(); if (!s) return;
+  const fs = activeFindings();
+  if (!fs.length && !state.busy){
+    const p = document.createElement("div"); p.className = "hint";
+    p.innerHTML = "この節にはまだ指摘がありません。<br><b>この節をチェック</b>を押すと、要修正箇所を種別ごとに色分けして本文に印を付けます。<br><br>本文の一部を選ぶと、<b>修正案</b>のタブに書き換え案が三つ出ます。";
+    box.appendChild(p); return;
+  }
+  fs.forEach(f => {
+    const c = document.createElement("div");
+    c.className = "card" + (state.curFinding === f.id ? " on" : "");
+    c.style.setProperty("--mk", "var("+CATS[f.cat].v+")");
+    let h = '<span class="sev">'+(f.sev >= 3 ? "要修正" : f.sev === 2 ? "検討" : "任意")+"</span>";
+    h += '<span class="cat">'+CATS[f.cat].label+"</span>";
+    h += '<div class="quote">'+esc(f.quote)+"</div>";
+    h += '<p class="why">'+esc(f.why || "")+"</p>";
+    if (f.start < 0) h += '<div class="lost">※ この箇所は書き換えられたため、本文中の位置を見失っています。</div>';
+    c.innerHTML = h;
+    (f.fix || []).forEach((fx, i) => {
+      const b = document.createElement("button");
+      b.className = "fix";
+      b.innerHTML = '<span class="lb">'+(i === 0 ? "案一" : i === 1 ? "案二" : "案三")+"</span>" + esc(typeof fx === "string" ? fx : (fx.text || ""));
+      if (typeof fx !== "string" && fx.note) b.innerHTML += '<span class="nt">'+esc(fx.note)+"</span>";
+      b.onclick = () => applyFix(f, typeof fx === "string" ? fx : fx.text);
+      c.appendChild(b);
+    });
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:6px;margin-top:8px";
+    const b1 = document.createElement("button"); b1.className = "btn sm ghost"; b1.textContent = "本文で見る";
+    b1.onclick = () => focusFinding(f);
+    const b2 = document.createElement("button"); b2.className = "btn sm ghost"; b2.textContent = "指摘を消す";
+    b2.onclick = () => dropFinding(f);
+    row.append(b1, b2); c.appendChild(row);
+    c.onclick = e => { if (e.target.closest("button")) return; state.curFinding = f.id; paint(); renderSide(); };
+    box.appendChild(c);
+  });
+}
+function renderSuggestions(box){
+  const g = state.suggestions;
+  if (!g){
+    const p = document.createElement("div"); p.className = "hint";
+    p.innerHTML = "本文を選ぶと、その範囲の書き換え案が出ます。<br>案は三つ。上から順に、効かせ具合が<b>控えめ・現在の設定・踏み込んだ直し</b>です。";
+    box.appendChild(p); return;
+  }
+  const sel = document.createElement("div"); sel.className = "selbox"; sel.textContent = g.sel; box.appendChild(sel);
+  (g.items || []).forEach((it, i) => {
+    const b = document.createElement("button"); b.className = "fix";
+    const lb = it.label || (i === 0 ? "控えめ" : i === 1 ? "標準" : "踏み込む");
+    b.innerHTML = '<span class="lb">'+esc(lb)+(it.cat && CATS[it.cat] ? "　"+CATS[it.cat].label : "")+"</span>"+esc(it.text || "");
+    if (it.note) b.innerHTML += '<span class="nt">'+esc(it.note)+"</span>";
+    b.onclick = () => {
+      if (g.heading){ applyHeading(it.text); return; }
+      applyRange(g.range[0], g.range[1], it.text);
+    };
+    box.appendChild(b);
+  });
+}
+function renderOriginal(box){
+  const s = cur(); if (!s) return;
+  const p = document.createElement("div");
+  p.className = "hint";
+  p.style.marginBottom = "10px";
+  p.textContent = s.edited ? "草稿のこの節の原文です。" : "まだ手を入れていません。";
+  box.appendChild(p);
+  if (s.edited){
+    const b = document.createElement("button"); b.className = "btn sm"; b.textContent = "原文に戻す";
+    b.style.marginBottom = "12px";
+    b.onclick = () => { pushUndo(); s.body = s.original; renderEditor(); queueSave(s); renderToc(); renderSide(); };
+    box.appendChild(b);
+  }
+  const o = document.createElement("div"); o.className = "orig"; o.textContent = s.original; box.appendChild(o);
+}
+
+/* ============================ 編集操作 ============================ */
+function pushUndo(){
+  const s = cur(); if (!s) return;
+  state.undo.push({id:s.id, body:s.body, heading:s.heading});
+  if (state.undo.length > 60) state.undo.shift();
+  $("btnUndo").disabled = false;
+}
+function applyRange(start, end, text){
+  const s = cur(); if (!s || typeof text !== "string" || !text.length) return;
+  pushUndo();
+  s.body = s.body.slice(0, start) + text + s.body.slice(end);
+  state.suggestions = null;
+  renderEditor(); queueSave(s); renderToc(); renderSide(); renderStats();
+  toast("置き換えました");
+}
+function applyFix(f, text){
+  const s = cur(); if (!s || !text) return;
+  if (f.start < 0){ toast("本文中の位置が見つかりません"); return; }
+  applyRange(f.start, f.end, text);
+  dropFinding(f, true);
+}
+function dropFinding(f, quiet){
+  const s = cur(); if (!s) return;
+  state.findings[s.id] = (state.findings[s.id] || []).filter(x => x.id !== f.id);
+  if (state.curFinding === f.id) state.curFinding = null;
+  paint(); renderSide(); renderToc(); renderStats(); queueSave(s);
+  if (!quiet) toast("指摘を消しました");
+}
+function focusFinding(f){
+  const ta = $("ta"); if (f.start < 0) return;
+  ta.focus(); ta.setSelectionRange(f.start, f.end);
+  state.curFinding = f.id; paint();
+  const top = $("paper").offsetTop + (f.start / Math.max(1, ta.value.length)) * ta.scrollHeight;
+  $("editorScroll").scrollTo({top:Math.max(0, top - 160), behavior:"smooth"});
+}
+function select(id){
+  state.curId = id; state.curFinding = null; state.suggestions = null; state.headings = null; state.err = null;
+  renderAll();
+  if (window.matchMedia("(max-width:860px)").matches) showView("work");
+  $("editorScroll").scrollTop = 0;
+}
+
+/* ============================ AI ============================ */
+function strengthNote(){
+  const st = STRENGTH[state.strength];
+  return "【効かせ具合】現在の設定は "+state.strength+"／4（"+st.name+"）。"+st.say+" 指摘は多くても"+st.max+"件まで。";
+}
+function ctxAround(body, start, end){
+  const a = Math.max(0, start - 400), b = Math.min(body.length, end + 400);
+  return body.slice(a, start) + "《ここから選択》" + body.slice(start, end) + "《ここまで選択》" + body.slice(end, b);
+}
+async function ask(prompt, opts){
+  if (!sampleFn) throw {code:"not_granted", message:"Claudeが使えません"};
+  abortCtl = new AbortController();
+  $("btnStop").hidden = false;
+  try {
+    return await sampleFn.json(prompt, Object.assign({signal:abortCtl.signal}, opts || {}));
+  } finally { $("btnStop").hidden = true; abortCtl = null; }
+}
+function errText(e){
+  const c = e && e.code;
+  if (c === "cancelled") return null;
+  if (c === "not_granted" || c === "sampling_disabled") return "この画面ではClaudeを使えません。共有設定か、表示中のアカウントの許可を確認してください。";
+  if (c === "rate_limited") return "呼び出しが立て込んでいます。少し置いてからもう一度。";
+  if (c === "invalid_json") return "返答を読み取れませんでした。もう一度試すか、節を短く区切ってください。";
+  if (c === "prompt_too_large") return "節が長すぎます。見出しを足して区切ってください。";
+  if (c === "session_expired") return "サインインし直してください。";
+  return "うまくいきませんでした（" + (c || "不明") + "）。もう一度試してください。";
+}
+
+async function checkSection(){
+  const s = cur(); if (!s || !s.body.trim()){ toast("本文がありません"); return; }
+  state.err = null; state.busy = "全体を読んでいます…（30〜90秒）"; state.tab = "find"; renderSide();
+  $("btnCheck").disabled = true;
+  const prompt = CRITERIA + "\n\n" + strengthNote() + `
+
+【仕事】
+次の節の本文から、要修正箇所を拾ってください。引用は本文から一字一句そのまま抜き出すこと（改行を含めない、20〜70字程度）。同じ箇所を二重に拾わない。重い順に並べる。
+
+【出力】JSONの配列だけを返す。説明文は書かない。
+[{"cat":"go","quote":"本文からの正確な抜き書き","why":"何が問題かを一文で","sev":2,"fix":["直した文字列（quoteと置き換わるもの）","別案"]}]
+cat は ronsho / mibun / kaisou / setsuzoku / shuji / go / bunmatsu のいずれか。sev は 3=要修正 2=検討 1=任意。fix は1〜2案、quoteと置き換えてそのまま本文になる文字列。
+
+【見出し】` + s.heading + `
+【本文】
+` + s.body;
+  try {
+    const out = await ask(prompt, {modelTier:state.strength >= 3 ? "complex" : "default", cache:false});
+    const arr = Array.isArray(out) ? out : (out && Array.isArray(out.findings) ? out.findings : []);
+    const list = arr.filter(f => f && f.quote && CATS[f.cat]).slice(0, STRENGTH[state.strength].max).map((f, i) => ({
+      id:s.id+"-"+Date.now()+"-"+i, cat:f.cat, quote:String(f.quote), why:String(f.why || ""),
+      sev:Number(f.sev) || 2, fix:(Array.isArray(f.fix) ? f.fix : [f.fix]).filter(x => typeof x === "string" && x.trim()),
+    }));
+    state.findings[s.id] = list;
+    queueSave(s);
+    toast(list.length ? list.length + "件の指摘" : "指摘はありませんでした");
+  } catch(e){ state.err = errText(e); }
+  state.busy = null; $("btnCheck").disabled = false;
+  renderAll();
+}
+
+async function suggestSelection(force){
+  const s = cur(); if (!s) return;
+  const ta = $("ta"); const a = ta.selectionStart, b = ta.selectionEnd;
+  const sel = s.body.slice(a, b);
+  if (sel.trim().length < 6 || sel.length > 500) return;
+  const key = a + ":" + b + ":" + state.strength;
+  if (!force && key === lastSelKey) return;
+  lastSelKey = key;
+  state.tab = "sugg"; state.err = null;
+  state.suggestions = {sel, items:[], range:[a, b]};
+  state.busy = "書き換え案を考えています…"; renderSide();
+  const lv = state.strength;
+  const prompt = CRITERIA + `
+
+【仕事】
+《ここから選択》〜《ここまで選択》で囲まれた範囲だけを書き換える案を、三つ出してください。前後の文は文脈として読むだけで、書き換えない。
+案一は控えめ（最小限の直し）、案二は現在の設定（` + lv + `／4・` + STRENGTH[lv].name + `）、案三は踏み込んだ直し（一文に畳む、前提を足す、語を精密にするなど）。
+どの案も、選択範囲とそのまま置き換えて文がつながるものにすること。前後の句読点の重複に注意。
+
+【出力】JSONの配列だけを返す。
+[{"label":"控えめ","text":"置き換える文字列","note":"何を直したか一言","cat":"go"}]
+
+【見出し】` + s.heading + `
+【本文（前後の文脈つき）】
+` + ctxAround(s.body, a, b);
+  try {
+    const out = await ask(prompt, {modelTier:"default", cache:false});
+    const arr = (Array.isArray(out) ? out : []).filter(x => x && typeof x.text === "string").slice(0, 4);
+    if (state.suggestions) state.suggestions.items = arr;
+    if (!arr.length) state.err = "案を作れませんでした。範囲を変えて試してください。";
+  } catch(e){ const t = errText(e); if (t) state.err = t; }
+  state.busy = null; renderSide();
+}
+
+async function suggestHeading(){
+  const s = cur(); if (!s) return;
+  state.tab = "sugg"; state.err = null; state.busy = "見出しを考えています…";
+  state.suggestions = {sel:"見出し：" + s.heading, items:[], range:null, heading:true};
+  renderSide();
+  const prompt = `あなたは新書の編集者です。次の節に付ける見出しを三つ提案してください。
+
+【新書の見出しの基準】
+・要約型の見出しは、答えを先に見せてしまい、その節を読む理由を奪う。読者が抱く問いのかたちに立てると、節の終わりが自然に答えの位置になる。
+・簡潔な名詞句、疑問文、短い平叙文のいずれか。二十五字以内。そこだけを読んで節のテーマが分かること。
+・内容にない新しい主張を見出しで作らない。固有名詞と事実は本文のままにする。
+・煽り文句、体言止めの決め台詞、コロンやダッシュで説明を足した形は避ける。
+例：「曖昧になるスポーツの境界線」→「どこまでがスポーツなのか」
+
+【出力】JSONの配列だけを返す。
+[{"label":"疑問文","text":"見出し案","note":"この見出しが節のどこを名指しているか一言"}]
+三案は、疑問文・名詞句・短い平叙文をそれぞれ一つずつにする。
+
+【いまの見出し】` + s.heading + `
+【この節の本文】
+` + s.body.slice(0, 3500);
+  try {
+    const out = await ask(prompt, {modelTier:"default", cache:{gcTime:600000}});
+    const arr = (Array.isArray(out) ? out : []).filter(x => x && typeof x.text === "string").slice(0, 4);
+    state.suggestions = {sel:"いまの見出し：" + s.heading, items:arr.map(x => ({
+      label:x.label || "案", text:x.text, note:x.note || "",
+    })), range:null, heading:true};
+  } catch(e){ const t = errText(e); if (t) state.err = t; }
+  state.busy = null; renderSide();
+}
+function applyHeading(text){
+  const s = cur(); if (!s || !text) return;
+  pushUndo();
+  s.heading = text; s.edited = true;
+  $("headingInput").value = text;
+  queueSave(s); renderToc(); renderStats(); toast("見出しを差し替えました");
+}
+
+/* ============================ 書き出し ============================ */
+function buildMarkdown(){
+  let out = "# " + state.title + "\n\n";
+  state.sections.forEach(s => {
+    out += (s.level === 1 ? "## " : "### ") + s.heading + "\n\n";
+    if (s.body) out += s.body + "\n\n";
+  });
+  return out;
+}
+async function exportBook(){
+  const md = buildMarkdown();
+  if (dl){
+    try {
+      await dl.save({filename:(state.title || "原稿").replace(/[\\/:*?"<>|]/g,"") + ".md", data:md});
+      toast("書き出しました"); return;
+    } catch(e){ if (e && e.code === "declined") return; }
+  }
+  try { await navigator.clipboard.writeText(md); toast("全文をクリップボードにコピーしました"); }
+  catch(e){ toast("書き出せませんでした"); }
+}
+
+/* ============================ UI 配線 ============================ */
+function showView(v){
+  ["toc","work","side"].forEach(k => $(k).classList.toggle("show", k === v));
+}
+function bindUI(){
+  const ta = $("ta");
+  ta.addEventListener("input", () => {
+    const s = cur(); if (!s) return;
+    s.body = ta.value; autosize(); paint(); renderCounts(); queueSave(s); renderToc(); renderStats();
+  });
+  ta.addEventListener("scroll", () => { $("hl").scrollTop = ta.scrollTop; });
+  ta.addEventListener("click", caretSync);
+  ta.addEventListener("keyup", e => { if (e.key.startsWith("Arrow") || e.key === "Home" || e.key === "End") caretSync(); });
+  ta.addEventListener("mouseup", () => { caretSync(); scheduleSuggest(); });
+  ta.addEventListener("keyup", e => { if (e.shiftKey) scheduleSuggest(); });
+
+  $("headingInput").addEventListener("input", e => {
+    const s = cur(); if (!s) return;
+    s.heading = e.target.value; s.edited = true; queueSave(s); renderToc();
+  });
+  $("btnCheck").onclick = checkSection;
+  $("btnHeading").onclick = suggestHeading;
+  $("btnExport").onclick = exportBook;
+  $("btnUndo").onclick = () => {
+    const u = state.undo.pop(); if (!u) return;
+    const s = state.sections.find(x => x.id === u.id); if (!s) return;
+    s.body = u.body; s.heading = u.heading;
+    if (state.curId !== s.id) state.curId = s.id;
+    $("btnUndo").disabled = !state.undo.length;
+    renderAll(); queueSave(s);
+  };
+  $("btnStop").onclick = () => { if (abortCtl) abortCtl.abort(); state.busy = null; renderSide(); };
+  $("strength").addEventListener("input", e => {
+    state.strength = Number(e.target.value);
+    $("strengthval").textContent = STRENGTH[state.strength].name;
+    try { localStorage.setItem(LS+"strength", String(state.strength)); } catch(err){}
+  });
+  const sv = (() => { try { return Number(localStorage.getItem(LS+"strength")) || 3; } catch(e){ return 3; } })();
+  state.strength = sv; $("strength").value = String(sv); $("strengthval").textContent = STRENGTH[sv].name;
+
+  document.querySelectorAll(".tabs button").forEach(b => {
+    b.onclick = () => { state.tab = b.dataset.tab; renderSide(); };
+  });
+  document.querySelectorAll(".mobile-tabs button").forEach(b => { b.onclick = () => showView(b.dataset.view); });
+  $("autoSugg").onchange = () => { if (!$("autoSugg").checked) clearTimeout(suggTimer); };
+
+  $("btnImport").onclick = () => $("importDlg").showModal();
+  $("importDlg").addEventListener("close", async () => {
+    if ($("importDlg").returnValue !== "go") return;
+    const raw = $("importText").value;
+    if (!raw.trim()) return;
+    const data = structure(raw);
+    if (!data.sections.length){ toast("節に分けられませんでした"); return; }
+    state.findings = {}; state.undo = []; state.curId = null;
+    apply(data); $("paper").hidden = false; $("emptyNote").hidden = true;
+    saveLocal(); renderAll();
+    toast(data.sections.length + "節に分けて取り込みました");
+    if (db){
+      setSave("保存中…");
+      try {
+        await db.doc("meta/book").set({title:state.title, updatedAt:now()});
+        for (const s of state.sections){
+          await db.doc("sections/"+s.id).set({idx:s.idx, heading:s.heading, level:s.level, part:s.part,
+            body:s.body, original:s.original, origHeading:s.origHeading, edited:false, findings:[], updatedAt:now()});
+        }
+        setSave("保存しました");
+      } catch(e){ setSave("保存できず（この端末には保存済み）"); }
+    }
+  });
+
+  document.addEventListener("keydown", e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); checkSection(); }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s"){ e.preventDefault(); saveLocal(); toast("保存しました"); }
+  });
+}
+function caretSync(){
+  const ta = $("ta"), p = ta.selectionStart;
+  const f = activeFindings().find(x => x.start >= 0 && p >= x.start && p <= x.end);
+  const id = f ? f.id : null;
+  if (id !== state.curFinding){
+    state.curFinding = id; paint();
+    if (id){ state.tab = "find"; renderSide();
+      const el = $("sidebody").querySelector(".card.on"); if (el) el.scrollIntoView({block:"nearest"});
+    }
+  }
+}
+function scheduleSuggest(){
+  if (!$("autoSugg").checked || !sampleFn) return;
+  clearTimeout(suggTimer);
+  suggTimer = setTimeout(() => suggestSelection(false), 700);
+}
+boot();
+</script>
